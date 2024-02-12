@@ -14,7 +14,7 @@ const Food = () => {
     "fdid": '', "fdname": '', "fdtype": '',
     "price": '', "description": '', "status": 'ACTIVE'
   })
-
+  
   var [planttype, setPlanttype] = useState([]);
   var [selectedimage, setSelectedimage] = useState([]);
 
