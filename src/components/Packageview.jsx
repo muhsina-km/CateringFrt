@@ -3,11 +3,13 @@ import axios from 'axios';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import React, { useEffect, useState } from 'react';
-import Packageedit from './Packageedit';
+
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import { Buffer } from 'buffer';
 import { useNavigate } from 'react-router-dom';
+import Foodedit from './Foodedit';
+import baseUrl from '../Api';
 
 const Packageview = () => {
     const [ptype, setPtype] = useState([]);
@@ -16,32 +18,21 @@ const Packageview = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        axios.get("http://localhost:3005/ptview")
+        axios.get(baseUrl+"/ptview")
             .then(response => {
-                console.log(response.data);
+                console.log(response);
                 setPtype(response.data);
             })
             .catch(err => console.log(err));
     }, []);
 
-    const deletevalues = (id) => {
-        console.log("Deleted", id);
-        axios.delete("http://localhost:3005/ptdelete/" + id)
-            .then((response) => {
-                alert("DELETED");
-                // Update state to remove the deleted item
-                setPtype(prevState => prevState.filter(item => item._id !== id));
-            })
-            .catch(error => {
-                console.error('Error deleting item:', error);
-            });
-    };
+   
 
     const toggleStatus = (id) => {
         const selectedItem = ptype.find(item => item._id === id);
         const updatedStatus = selectedItem.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
 
-        axios.put("http://localhost:3005/ptupdatestatus/" + id, { status: updatedStatus })
+        axios.put(baseUrl+"/ptupdatestatus/" + id, { status: updatedStatus })
             .then((response) => {
                 // Update status in UI
                 setPtype(prevState => prevState.map(item => item._id === id ? { ...item, status: updatedStatus } : item));
@@ -53,10 +44,11 @@ const Packageview = () => {
 
     const updatevalues = (value) => {
         console.log("UPDATED", value);
-        navigate(`/packageedit/${value._id}`, { state: { data: value } });
+        setSelected(value);
+        setUpdate(true);
     };
 
-    return (
+    var result =
         <div>
             <Navbar />
             <Sidebar />
@@ -66,7 +58,7 @@ const Packageview = () => {
             </center>
             <br />
 
-            <TableContainer style={{marginLeft:'15vw',width:"85vw"}}>
+            <TableContainer style={{ marginLeft: '15vw', width: "85vw" , marginTop:"5vw" }}>
                 <Table>
                     <TableHead>
                         <TableRow>
@@ -80,7 +72,7 @@ const Packageview = () => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {ptype.map((value, index) => (
+                        {ptype?.map((value, index) => (
                             <TableRow key={index}>
                                 <TableCell>{value.packid}</TableCell>
                                 <TableCell>{value.packname}</TableCell>
@@ -97,7 +89,10 @@ const Packageview = () => {
                 </Table>
             </TableContainer>
         </div>
-    );
+    if (update) {
+        result = <Foodedit data={selected} method='put' />
+    }
+    return (result)
 };
 
 export default Packageview;

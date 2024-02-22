@@ -1,104 +1,109 @@
-import React, { useState ,useEffect } from 'react'
-import { Button } from '@mui/material'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import Card from '@mui/material/Card';
+import axios from 'axios'
+import { Button, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import './Main.css';
 import CardContent from '@mui/material/CardContent';
-import axios from 'axios';
+import Card from '@mui/material/Card';
+import Navbar from './Navbar';
+import Sidebar from './Sidebar';
+import { Buffer } from 'buffer';
+import baseUrl from '../Api';
 
 const Foodedit = (props) => {
+    //   var [ptype, setPtype] = useState({
+    //     "packid": '', "packname": '',
+    //     "pprice": '', "pdescription": '', "status": 'ACTIVE'
 
-  var [inputs, setInputs] = useState(props.data)
-  var [selectedimage, setSelectedimage] = useState([]);
-  var [planttype, setPlanttype] = useState([]);
+    //   });
+    var [ptype, setPtype] = useState(props.data);
+    const [status, setStatus] = React.useState('');
+    var [selectedimage, setSelectedimage] = useState([]);
 
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    console.log(inputs)
-    axios.get("http://localhost:3005/pview")
-      .then(response => {
-        console.log(response.data)
-        setPlanttype(response.data)
-      })
-      .catch(err => console.log(err))
-  }, [])
 
-  const inputHandler = (event) => {
-    const { name, value } = event.target
-    setInputs((inputs) => ({ ...inputs, [name]: value }))
-    console.log(inputs)
-  }
+    const navigate = useNavigate();
 
-  const handleImage = (event) => {
-    const file = event.target.files[0];
-    setSelectedimage(file)
-    inputs.plantphoto=file;
- }
+    const ptypehandler = (event) => {
+        setStatus(event.target.value);
+        const { name, value } = event.target
+        setPtype((ptype) => ({ ...ptype, [name]: value }))
+        // console.log(ptype)
+    }
 
- const savedata = () => {
-  const formdata = new FormData();
-  formdata.append('fdid',inputs.fdid);
-  formdata.append('fdname',inputs.fdname);
-  formdata.append('fdtype',inputs.fdtype);
-  formdata.append('price',inputs.price);
-  formdata.append('description',inputs.description);
-  formdata.append('status',inputs.status);
-  formdata.append('plantphoto',selectedimage);
-  console.log(formdata);
-  
-  fetch ('http://localhost:3005/pnew',
-  {method:'post', body:formdata })
-  .then((response)=>response.json())
-  .then((data)=>{
-      alert("Record Saved")
-  })
-  .catch((err)=>{
-      console.log("err")
-  })
-  navigate('/foodview')
-}
+    // const saveData = () => {
+    //   axios.post("http://localhost:3005/ptnew", ptype)
+    //     .then((response) => { alert("Record saved") })
+    //     .catch(err => console.log(err))
+    //   navigate('/packageview')
 
-     return (
-    <div>
-      <Card sx={{ minWidth: 275 }}>
-      <CardContent>
-      <center><h1>Plant Details</h1>
-      <form>
-        Food ID : <input type="text" name="fdid" id='p1' value={inputs.fdid} onChange={inputHandler}/>
-        <br /><br />
-        Food Name : <input type="text" name="fdname" id="p2" value={inputs.fdname} onChange={inputHandler}/>
-        <br /><br />
-        Food Type :<select name="fdtype" value={inputs.fdype} onChange={inputHandler}  >
-                
-                      <option value="Non.veg"> Non.veg</option>
-                      <option value="veg"> veg</option>
-                   
-              </select>
-        <br /><br />
+    // }
+    const saveData = () => {
+        const formdata = new FormData();
+        formdata.append('packid', ptype.packid);
+        formdata.append('packname', ptype.packname);
+        formdata.append('pprice', ptype.pprice);
+        formdata.append('image', selectedimage);
+        formdata.append('pdescription', ptype.pdescription);
+        formdata.append('status', ptype.status);
       
-        Price : <input type="number" name="price" id="p6" value={inputs.price} onChange={inputHandler}/>
-        <br /><br />
-        Description : <textarea rows='4' name='description' id='p7'value={inputs.description} onChange={inputHandler}/>
-        <br /><br />
-       
-        Image : <input type="file" onChange={handleImage}/>
-        <br /><br />
-        Status   &nbsp;
-            <select name='status' value={inputs.status} onChange={inputHandler}>
-                <option value="ACTIVE">ACTIVE</option>
-                <option value="INACTIVE">INACTIVE</option>
-            </select>
-            <br />
-            <br />
-        <Button variant='contained' onClick={savedata}>SAVE</Button>
-      </form>
-      </center>
+        fetch(baseUrl+`/ptedit/${ptype._id}`,
+            { method: 'put', body: formdata, })
+            .then((response) => response.json())
+            .then((data) => {
+                alert("record saved")
+            })
+            .catch((err) => {
+                console.log("error", err)
+            })
 
-      </CardContent>
-          </Card>
+        navigate('/packageview')
 
-    </div>
-  )
+    }
+
+    const handleImage = (event) => {
+        const file = event.target.files[0];
+        setSelectedimage(file)
+        // ptype.image = file
+    }
+
+    return (
+        <div className='background-3'>
+            <Navbar />
+            <Sidebar />
+            <form>
+                <Card sx={{ minWidth: 275 }}>
+                    <CardContent>
+                        <center>
+                            <h1>Food Items</h1>
+
+                            Food Code : <input type="text" name="packid" value={ptype.packid} onChange={ptypehandler} />
+                            <br /><br />
+                            Food Name : <input type="text" name="packname" id="p2" value={ptype.packname} onChange={ptypehandler} />
+                            <br /><br />
+                            Price : <input type="number" name="pprice" id="p6" value={ptype.pprice} onChange={ptypehandler} />
+                            <br /><br />
+                            Image :  <img src={`data:image/*;base64,${Buffer.from(ptype.image.data).toString('base64')}`} width="50" height="50" alt='Error' />
+                            <input type="file" onChange={handleImage} />
+                            <br />
+                            Description : <textarea rows='4' name='pdescription' id='p7' value={ptype.pdescription} onChange={ptypehandler} />
+                            <br /><br />
+                            Status   &nbsp;
+                            <select name='status'
+                                value={status}
+                                onChange={ptypehandler} >
+                                <option >ACTIVE</option>
+                                <option >INACTIVE</option>
+                            </select>
+                            <br /><br />
+                            <Button variant='contained' onClick={saveData}>SAVE</Button>
+                        </center>
+                    </CardContent>
+                </Card>
+            </form>
+        </div>
+
+    )
 }
 
 export default Foodedit

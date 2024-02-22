@@ -29,7 +29,8 @@ const Sidebar = () => {
             <ul>
                 {/* <a href="/foodview"><li>Food Details View</li></a> */}
                 <a href="/packageview"><li>Food Items View</li></a>
-
+                <a href="/addressview"><li>Customerr details</li></a>
+                <a href="/orderview"><li>Order View</li></a>
             </ul>
 
         </div>

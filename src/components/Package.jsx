@@ -7,6 +7,7 @@ import CardContent from '@mui/material/CardContent';
 import Card from '@mui/material/Card';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
+import baseUrl from '../Api';
 
 
 const Package = () => {
@@ -45,7 +46,7 @@ const Package = () => {
     formdata.append('pdescription',ptype.pdescription);
     formdata.append('status',ptype.status);
 
-    fetch('http://localhost:3005/ptnew',
+    fetch(baseUrl+'/ptnew',
     {method:'post',body:formdata,})
     .then((response)=>response.json())
     .then((data)=>{
